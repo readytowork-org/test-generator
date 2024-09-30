@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Test Generator",
+  "version": "1.0",
+  "description": "Records DOM events (click, dblclick, change, select).",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "index.html"
+  }
+}
