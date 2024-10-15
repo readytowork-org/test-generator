@@ -4,14 +4,19 @@
   "version": "1.0",
   "description": "Records DOM events (click, dblclick, change, select).",
   "permissions": [
-    "activeTab",
+    "tabs",
     "storage",
-    "scripting"
+    "scripting",
+    "sidePanel"
   ],
+  "host_permissions": ["*://*/*"],
+  "action": {
+    "default_title": "Open Test Generator"
+  },
   "background": {
     "service_worker": "src/background/index.ts"
   },
-  "action": {
-    "default_popup": "index.html"
+  "side_panel": {
+    "default_path": "side_panel.html"
   }
 }
