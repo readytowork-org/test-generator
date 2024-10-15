@@ -3,7 +3,7 @@ import { Box, Button } from "@mui/material"
 
 function SidePanel() {
   const [state, setState] = useState(false)
-  const port = chrome.runtime.connect({ name: "recordings" })
+  const port = chrome.runtime.connect({ name: "ui-actions" })
 
   useEffect(() => {
     console.log("listener addded")

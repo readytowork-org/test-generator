@@ -27,8 +27,13 @@ interface Data {
 
 export class EventRecorder {
   previousEvent: Event | undefined
+  port = chrome.runtime.connect({ name: "recordings" })
+
   constructor() {
     console.log("added")
+    this.port.onMessage.addListener((message, port) => {
+      console.log("backend to content", { message, port })
+    })
     this.boot()
   }
 
@@ -75,8 +80,8 @@ export class EventRecorder {
 
   sendDataToBackend = (data: Data): void => {
     try {
-      if (chrome.runtime && chrome.runtime.onConnect) {
-        chrome.runtime.sendMessage(data)
+      if (this.port) {
+        this.port.postMessage(data)
       }
     } catch (err) {
       console.debug("caught error", err)
