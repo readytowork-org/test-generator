@@ -1,4 +1,4 @@
-export type UI_EVENTS =
+export type UiEvents =
   | "click"
   | "dblclick"
   | "change"
@@ -7,15 +7,8 @@ export type UI_EVENTS =
   | "load"
   | "unload"
 
-export const uiEvents: UI_EVENTS[] = [
-  "click",
-  "dblclick",
-  "change",
-  "select",
-  "submit",
-  "load",
-  "unload",
-]
+export const CLICK_EVENTS: UiEvents[] = ["click", "dblclick"]
+export const INPUT_EVENTS: UiEvents[] = ["change", "select", "submit"]
 
 export const elements = [
   "input",

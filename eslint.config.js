@@ -27,13 +27,15 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...eslintConfigPrettier.rules,
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
       ],
-      ...react.configs.recommended.rules,
       "react/react-in-jsx-scope": 0,
-      ...eslintConfigPrettier.rules,
+      "react/jsx-curly-brace-presence": ["error", "always"],
+      '@typescript-eslint/no-explicit-any': 0,
     },
   },
 )
