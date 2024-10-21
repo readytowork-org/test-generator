@@ -35,7 +35,8 @@ export default tseslint.config(
       ],
       "react/react-in-jsx-scope": 0,
       "react/jsx-curly-brace-presence": ["error", "always"],
-      '@typescript-eslint/no-explicit-any': 0,
+      "@typescript-eslint/no-explicit-any": 0,
+      "react-hooks/exhaustive-deps": "error",
     },
   },
 )

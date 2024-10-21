@@ -14,7 +14,7 @@ export default defineConfig({
     webExtension({
       disableAutoLaunch: true,
       manifest: "src/manifest.json",
-      additionalInputs: ["src/content/index.ts"],
+      // additionalInputs: ["src/content/index.ts"],
     }),
   ],
 })

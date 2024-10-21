@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   RECORDED_EVENT,
   RECORDING_STARTED,
@@ -37,9 +37,14 @@ export const useSidePanel = (): useSidePanelFn => {
     })
   }, [actionPort.onMessage])
 
-  const handleRecordingsEvents = useCallback(
-    async (port: Port) => {
+  useEffect(() => {
+    console.log("added")
+    chrome.runtime.onConnect.addListener(async (port: Port) => {
+      console.log("UI connected", port)
+
       port.onMessage.addListener(async (msg) => {
+        console.log("addListener fire")
+
         switch (msg.command) {
           case RECORDED_EVENT: {
             const actions = form.getValues("actions")
@@ -48,17 +53,8 @@ export const useSidePanel = (): useSidePanelFn => {
           }
         }
       })
-    },
-    [form],
-  )
-
-  useEffect(() => {
-    const has = chrome.runtime.onConnect.hasListener(handleRecordingsEvents)
-    if (!has) {
-      console.log("reg :: handleRecordingsEvents")
-      chrome.runtime.onConnect.addListener(handleRecordingsEvents)
-    }
-  }, [handleRecordingsEvents])
+    })
+  }, [])
 
   const postActionMessage = (msg: PortMessage) => {
     actionPort.postMessage(msg)

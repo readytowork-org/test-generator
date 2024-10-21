@@ -1,10 +1,6 @@
 import { FC } from "react"
 import { Box, Button, ButtonGroup, Divider } from "@mui/material"
-import {
-  PAUSE_RECORDING,
-  START_RECORDING,
-  STOP_RECORDING,
-} from "../constants.ts"
+import { START_RECORDING, STOP_RECORDING } from "../constants.ts"
 import { useSidePanel } from "./useSidePanel.tsx"
 import { RecordedActionsList, renderChildrenWithHooksHoc } from "../components"
 import { FormProvider } from "react-hook-form"
@@ -41,21 +37,11 @@ const SidePanel: FC = () => {
           }}
           onClick={() => {
             postActionMessage({
-              command: recording ? PAUSE_RECORDING : START_RECORDING,
+              command: recording ? STOP_RECORDING : START_RECORDING,
             })
           }}
         >
-          {`${recording ? "Pause" : "Start"} Recording`}
-        </Button>
-        <Button
-          sx={{
-            textTransform: "none",
-          }}
-          onClick={() => {
-            postActionMessage({ command: STOP_RECORDING })
-          }}
-        >
-          {"Stop Recording"}
+          {`${recording ? "Stop" : "Start"} Recording`}
         </Button>
       </ButtonGroup>
     </Box>
