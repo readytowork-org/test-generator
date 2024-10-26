@@ -3,11 +3,10 @@ import { UiEvents } from "./content/constants.ts"
 export type SelectorsType =
   | "testId"
   | "id"
-  | "tagName"
   | "label"
   | "placeholder"
-  | "classes"
-  | "textContent"
+  | "css"
+  | "text content"
   | "title"
   | "xpath"
 

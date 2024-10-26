@@ -6,6 +6,8 @@ import {
   CardHeader,
   IconButton,
   InputBase,
+  MenuItem,
+  Select,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -178,9 +180,46 @@ export const RecordedElementListItem: FC<CardProps> = ({
                 {`in the`}
               </>
             )}
-            <Typography variant={"body1"} color={"primary"}>
-              {data.selectedSelector.key}
-            </Typography>
+            <Select
+              {...register(`actions.${index}.value`)}
+              defaultValue={data.selectedSelector.key}
+              slotProps={{
+                input: {
+                  sx: {
+                    padding: "unset",
+                    color: theme.palette.primary.main,
+                    border: "none",
+                  },
+                },
+              }}
+              input={<InputBase />}
+              renderValue={(selected) => {
+                return (
+                  <Typography variant={"body1"} color={"primary"}>
+                    {selected}
+                  </Typography>
+                )
+              }}
+            >
+              {data.selectors.map((item) => {
+                return (
+                  <MenuItem
+                    key={item.type}
+                    value={item.key}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Typography variant={"body1"}>{item.key}</Typography>
+                    <Typography
+                      variant={"body2"}
+                      color={"textDisabled"}
+                    >{`By: ${item.type}`}</Typography>
+                  </MenuItem>
+                )
+              })}
+            </Select>
             {INPUT_EVENTS.includes(data.action)
               ? "field"
               : `${data.tagName.toLowerCase()}`}

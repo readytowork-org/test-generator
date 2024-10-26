@@ -45,7 +45,7 @@ export class EventRecorder {
 
     const keyCode = (e as KeyboardEvent).keyCode
 
-    const selector = this.getAllSelectors(target)
+    const selector = getAllSelectors(target)
       .filter((value) => value.key != "")
       .sort((a, b) => a.priority - b.priority)
 
@@ -74,99 +74,6 @@ export class EventRecorder {
       console.debug("caught error", err)
     }
   }
-
-  getAllSelectors = (
-    element: HTMLInputElement | HTMLAnchorElement,
-  ): Selectors => {
-    const selectors: Selectors = []
-
-    for (let i = 0; i < element.attributes.length; i++) {
-      const attr = element.attributes[i]
-      if (attr.name !== "id" && attr.name !== "class") {
-        // Test ID (check for common variations)
-        if (
-          attr.name === "data-testid" ||
-          attr.name === "data-cy" ||
-          attr.name.toLowerCase().includes("testid")
-        ) {
-          selectors.push({
-            key: attr.value,
-            type: "testId",
-            priority: 1,
-          })
-        }
-      }
-    }
-
-    //  ID
-    if (element.getAttribute("id")) {
-      selectors.push({
-        key: element.id,
-        type: "id",
-        priority: 2,
-      })
-    }
-
-    if (["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName)) {
-      const label = document.querySelector(
-        `label[for="${element.id}"]`,
-      ) as HTMLInputElement
-      if (label && label.textContent) {
-        selectors.push({
-          key: `"${label.textContent.trim()}"`,
-          type: "label",
-          priority: 3,
-        })
-      }
-    }
-
-    // Placeholder
-    if (element.getAttribute("placeholder")) {
-      selectors.push({
-        key: `${element.getAttribute("placeholder")}`,
-        type: "placeholder",
-        priority: 4,
-      })
-    }
-
-    // Classes
-    if (element.classList.length > 0) {
-      selectors.push({
-        key: Array.from(element.classList)
-          .map((c) => `.${c}`)
-          .join(""),
-        type: "classes",
-        priority: 5,
-      })
-    }
-
-    // Text Content (basic)
-    if (element.textContent && element.textContent?.trim() !== "") {
-      selectors.push({
-        key: element.textContent.trim(),
-        type: "textContent",
-        priority: 6,
-      })
-    }
-
-    // Title Attribute
-    if (element.getAttribute("title")) {
-      selectors.push({
-        key: `"${element.getAttribute("title")}"`,
-        type: "title",
-        priority: 7,
-      })
-    }
-
-    // Tag Name
-    selectors.push({
-      key: element.tagName.toLowerCase(),
-      type: "tagName",
-      priority: 8,
-    })
-
-    return selectors
-  }
 }
 
 interface Coordinates {
@@ -186,6 +93,92 @@ function getCoordinates(evt: WindowEventMap[UiEvents]) {
   return eventsWithCoordinates[evt.type]
     ? { x: _evt.clientX, y: _evt.clientY }
     : null
+}
+
+const getAllSelectors = (
+  element: HTMLInputElement | HTMLAnchorElement,
+): Selectors => {
+  const selectors: Selectors = []
+
+  for (let i = 0; i < element.attributes.length; i++) {
+    const attr = element.attributes[i]
+    if (attr.name !== "id" && attr.name !== "class") {
+      // Test ID (check for common variations)
+      if (
+        attr.name === "data-testid" ||
+        attr.name === "data-cy" ||
+        attr.name.toLowerCase().includes("testid")
+      ) {
+        selectors.push({
+          key: attr.value,
+          type: "testId",
+          priority: 1,
+        })
+      }
+    }
+  }
+
+  //  ID
+  if (element.getAttribute("id")) {
+    selectors.push({
+      key: element.id,
+      type: "id",
+      priority: 2,
+    })
+  }
+
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(element.tagName)) {
+    const label = document.querySelector(
+      `label[for="${element.id}"]`,
+    ) as HTMLInputElement
+    if (label && label.textContent) {
+      selectors.push({
+        key: `"${label.textContent.trim()}"`,
+        type: "label",
+        priority: 3,
+      })
+    }
+  }
+
+  // Placeholder
+  if (element.getAttribute("placeholder")) {
+    selectors.push({
+      key: `${element.getAttribute("placeholder")}`,
+      type: "placeholder",
+      priority: 4,
+    })
+  }
+
+  // Classes
+  if (element.classList.length > 0) {
+    selectors.push({
+      key: Array.from(element.classList)
+        .map((c) => `.${c}`)
+        .join(""),
+      type: "css",
+      priority: 5,
+    })
+  }
+
+  // Text Content (basic)
+  if (element.textContent && element.textContent?.trim() !== "") {
+    selectors.push({
+      key: element.textContent.trim(),
+      type: "text content",
+      priority: 6,
+    })
+  }
+
+  // Title Attribute
+  if (element.getAttribute("title")) {
+    selectors.push({
+      key: `"${element.getAttribute("title")}"`,
+      type: "title",
+      priority: 7,
+    })
+  }
+
+  return selectors
 }
 
 window.eventListeners = new EventRecorder()
