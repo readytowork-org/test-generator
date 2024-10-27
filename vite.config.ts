@@ -14,7 +14,11 @@ export default defineConfig({
     webExtension({
       disableAutoLaunch: true,
       manifest: "src/manifest.json",
-      additionalInputs: ["src/content/index.ts", "src/content/hover.css"],
+      additionalInputs: [
+        "src/content/index.ts",
+        "src/content/hover.css",
+        "side_panel.html",
+      ],
     }),
   ],
 })

@@ -15,8 +15,5 @@
   },
   "background": {
     "service_worker": "src/background/index.ts"
-  },
-  "side_panel": {
-    "default_path": "side_panel.html"
   }
 }

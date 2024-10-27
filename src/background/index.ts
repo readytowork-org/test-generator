@@ -2,18 +2,36 @@ import {
   RECORDED_EVENT,
   RECORDING_PORT,
   RECORDING_STARTED,
+  RECORDING_STOPPED,
   START_RECORDING,
   STOP_RECORDING,
   UI_ACTIONS_PORT,
 } from "../constants.ts"
 import { PortMessage } from "../interfaces.ts"
+import Tab = chrome.tabs.Tab
 
 let activeTabId: number | undefined = undefined
 
 class BackgroundWorker {
   constructor() {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+    chrome.action.onClicked.addListener(this.addSideBar)
     this.listenToPort()
+  }
+
+  addSideBar = (tab: Tab) => {
+    chrome.sidePanel.setOptions(
+      {
+        tabId: tab.id,
+        path: "side_panel.html",
+      },
+      async () => {
+        await chrome.sidePanel.open({
+          tabId: tab.id,
+          windowId: tab.windowId,
+        })
+      },
+    )
   }
 
   listenToPort = () => {
@@ -55,7 +73,7 @@ class BackgroundWorker {
       case STOP_RECORDING: {
         activeTabId = undefined
         port.postMessage({
-          command: RECORDING_STARTED,
+          command: RECORDING_STOPPED,
         })
         break
       }
