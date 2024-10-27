@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid"
 declare global {
   interface Window {
     pptRecorderAddedControlListeners: boolean
-    eventListeners: EventRecorder
+    clientScript: EventRecorder
   }
 }
 
@@ -24,7 +24,49 @@ export class EventRecorder {
   boot = () => {
     if (!window.pptRecorderAddedControlListeners) {
       this.addWindowEventListeners([...CLICK_EVENTS, ...INPUT_EVENTS])
+      this.addHoverEffects()
       window.pptRecorderAddedControlListeners = true
+    }
+  }
+
+  addHoverEffects = () => {
+    const testGenHover = document.createElement("div")
+    testGenHover.id = "test-gen-hover"
+    testGenHover.className = "test-gen-hover"
+
+    const testGenHoverTooltip = document.createElement("span")
+    testGenHoverTooltip.id = "test-gen-hover-tooltip"
+    testGenHoverTooltip.className = "test-gen-hover-tooltip"
+
+    document.body.appendChild(testGenHover)
+    document.body.appendChild(testGenHoverTooltip)
+
+    document.body.addEventListener("mouseover", this.onMouseOver)
+  }
+
+  onMouseOver = (event: MouseEvent) => {
+    const element = event.target! as EventTarget as HTMLElement
+    if (element) {
+      const rect = element.getBoundingClientRect()
+
+      const _testGenHover = document.getElementById("test-gen-hover")
+
+      _testGenHover!.style.top = `${document.documentElement.scrollTop + rect.top}px`
+      _testGenHover!.style.left = `${document.documentElement.scrollLeft + rect.left}px`
+      _testGenHover!.style.height = `${rect.height}px`
+      _testGenHover!.style.width = `${rect.width}px`
+
+      const selector = getAllSelectors(element)
+        .filter((value) => value.key != "")
+        .sort((a, b) => a.priority - b.priority)
+
+      const _testGenHoverTooltip = document.getElementById(
+        "test-gen-hover-tooltip",
+      )
+      _testGenHoverTooltip!.innerHTML = selector[0].key
+
+      _testGenHoverTooltip!.style.top = `calc(${_testGenHover!.style.top} + ${_testGenHover!.style.height} + 7px)`
+      _testGenHoverTooltip!.style.left = _testGenHover!.style.left
     }
   }
 
@@ -95,9 +137,7 @@ function getCoordinates(evt: WindowEventMap[UiEvents]) {
     : null
 }
 
-const getAllSelectors = (
-  element: HTMLInputElement | HTMLAnchorElement,
-): Selectors => {
+const getAllSelectors = (element: HTMLElement): Selectors => {
   const selectors: Selectors = []
 
   for (let i = 0; i < element.attributes.length; i++) {
@@ -172,7 +212,7 @@ const getAllSelectors = (
   // Title Attribute
   if (element.getAttribute("title")) {
     selectors.push({
-      key: `"${element.getAttribute("title")}"`,
+      key: `${element.getAttribute("title")}`,
       type: "title",
       priority: 7,
     })
@@ -181,4 +221,4 @@ const getAllSelectors = (
   return selectors
 }
 
-window.eventListeners = new EventRecorder()
+window.clientScript = new EventRecorder()

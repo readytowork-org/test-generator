@@ -69,6 +69,11 @@ class BackgroundWorker {
     })
     activeTabId = tabs[0].id!
 
+    await chrome.scripting.insertCSS({
+      target: { tabId: tabs[0].id! },
+      files: ["src/content/hover.css"],
+    })
+
     await chrome.scripting.executeScript({
       target: { tabId: tabs[0].id! },
       files: ["src/content/index.js"],

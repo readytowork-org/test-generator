@@ -1,0 +1,29 @@
+.test-gen-hover {
+    border: 2px solid lightcoral;
+    background-color: rgba(240, 128, 128, 0.3);
+    position: absolute;
+    pointer-events: none;
+    z-index: 999999999;
+}
+
+.test-gen-hover-tooltip {
+    background: rgba(240, 128, 128, 1);
+    position: absolute;
+    border-radius: 6px;
+    padding: 6px;
+    color: white;
+    z-index: 999999999;
+    height: fit-content;
+    width: fit-content;
+}
+
+.test-gen-hover-tooltip:before {
+    content: "";
+    height: 10px;
+    width: 10px;
+    background: rgba(240, 128, 128, 1);
+    top: -5px;
+    left: 10px;
+    position: absolute;
+    transform: rotateZ(45deg);
+}
