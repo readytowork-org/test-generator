@@ -33,7 +33,7 @@ export interface HtmlElement {
   tagName: string
   targetType: string
   action: UiEvents
-  keyCode: number | null
+  keyCode: string | null
   href: unknown
   coordinates: unknown
   control?: string

@@ -85,7 +85,7 @@ export class EventRecorder {
 
     const target = e.target as HTMLInputElement & HTMLAnchorElement
 
-    const keyCode = (e as KeyboardEvent).keyCode
+    const keyCode = (e as KeyboardEvent).code
 
     const selector = getAllSelectors(target)
       .filter((value) => value.key != "")

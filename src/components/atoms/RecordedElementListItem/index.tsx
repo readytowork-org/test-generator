@@ -150,7 +150,7 @@ export const RecordedElementListItem: FC<CardProps> = ({
             gap={"8px"}
           >
             {CLICK_EVENTS.includes(data.action) ? (
-              `${data.action} on `
+              `${data.action[0].toUpperCase()}${data.action.slice(1)} on `
             ) : (
               <>
                 {`Enter`}
