@@ -1,5 +1,7 @@
 import { UiEvents } from "./content/constants.ts"
 
+export type TestFramework = "playwright" | "cypress"
+
 export type SelectorsType =
   | "testId"
   | "id"
@@ -8,15 +10,16 @@ export type SelectorsType =
   | "css"
   | "text content"
   | "title"
-  | "xpath"
 
 export interface ActionsFormValues {
   actions: HtmlElement[]
+  recording: boolean
+  codePreview: { code: string; preview: boolean }
 }
 
 export interface PortMessage {
   command: string
-  data?: HtmlElement | object
+  data?: HtmlElement | HtmlElement[] | object | string
 }
 
 export interface SelectorsObj {

@@ -7,4 +7,6 @@ export const PAUSE_RECORDING = "pause-recording"
 export const STOP_RECORDING = "stop-recording"
 export const RECORDING_STOPPED = "recording-stopped"
 
+export const CODE_GENERATED = "code-generated"
+
 export const RECORDED_EVENT = "recorded-event"

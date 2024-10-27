@@ -1,26 +1,31 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 import {
+  CODE_GENERATED,
   RECORDED_EVENT,
   RECORDING_STARTED,
   RECORDING_STOPPED,
+  STOP_RECORDING,
   UI_ACTIONS_PORT,
 } from "../constants.ts"
-import { ActionsFormValues, PortMessage } from "../interfaces.ts"
+import { ActionsFormValues, HtmlElement, PortMessage } from "../interfaces.ts"
 import { useForm, UseFormReturn } from "react-hook-form"
 import Port = chrome.runtime.Port
 
 export interface useSidePanelFn {
-  recording: boolean
   postActionMessage: (msg: PortMessage) => void
   form: UseFormReturn<ActionsFormValues>
 }
 
 export const useSidePanel = (): useSidePanelFn => {
-  const [recording, setRecording] = useState(false)
   const actionPort = chrome.runtime.connect({ name: UI_ACTIONS_PORT })
   const form = useForm<ActionsFormValues>({
     values: {
       actions: [],
+      recording: false,
+      codePreview: {
+        preview: false,
+        code: "",
+      },
     },
   })
 
@@ -28,22 +33,29 @@ export const useSidePanel = (): useSidePanelFn => {
     actionPort.onMessage.addListener((msg: PortMessage) => {
       switch (msg.command) {
         case RECORDING_STARTED:
-          setRecording(true)
+          form.setValue("recording", true)
           break
         case RECORDING_STOPPED:
-          setRecording(false)
+          form.setValue("recording", false)
           break
+        case CODE_GENERATED: {
+          form.setValue("codePreview", {
+            code: msg.data as string,
+            preview: true,
+          })
+          break
+        }
       }
     })
   }, [actionPort.onMessage])
 
   const handleRecordingsEvents = useCallback(
     async (port: Port) => {
-      port.onMessage.addListener(async (msg) => {
+      port.onMessage.addListener(async (msg: PortMessage) => {
         switch (msg.command) {
           case RECORDED_EVENT: {
             const actions = form.getValues("actions")
-            form.setValue("actions", [...actions, msg.data])
+            form.setValue("actions", [...actions, msg.data as HtmlElement])
             break
           }
         }
@@ -60,12 +72,16 @@ export const useSidePanel = (): useSidePanelFn => {
     }
   }, [handleRecordingsEvents])
 
-  const postActionMessage = (msg: PortMessage) => {
-    actionPort.postMessage(msg)
-  }
+  const postActionMessage = useCallback((msg: PortMessage) => {
+    console.log("actions", form.getValues("actions"))
+
+    actionPort.postMessage({
+      ...msg,
+      data: msg.command === STOP_RECORDING ? form.getValues("actions") : null,
+    })
+  }, [])
 
   return {
-    recording,
     postActionMessage,
     form,
   }

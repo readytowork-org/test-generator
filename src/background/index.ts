@@ -1,4 +1,5 @@
 import {
+  CODE_GENERATED,
   RECORDED_EVENT,
   RECORDING_PORT,
   RECORDING_STARTED,
@@ -7,12 +8,12 @@ import {
   STOP_RECORDING,
   UI_ACTIONS_PORT,
 } from "../constants.ts"
-import { PortMessage } from "../interfaces.ts"
+import { HtmlElement, PortMessage, TestFramework } from "../interfaces.ts"
+import { Playwright } from "../code_gen/playwright"
 import Tab = chrome.tabs.Tab
 
-let activeTabId: number | undefined = undefined
-
 class BackgroundWorker {
+  testFramework: TestFramework = "playwright"
   constructor() {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
     chrome.action.onClicked.addListener(this.addSideBar)
@@ -65,15 +66,33 @@ class BackgroundWorker {
 
         port.postMessage({
           command: RECORDING_STARTED,
-          data: activeTabId,
         })
         break
       }
 
       case STOP_RECORDING: {
-        activeTabId = undefined
+        if (msg.data) {
+          this.generateTestScript(port, msg.data as HtmlElement[])
+        }
+
         port.postMessage({
           command: RECORDING_STOPPED,
+        })
+        break
+      }
+    }
+  }
+
+  generateTestScript = async (
+    port: chrome.runtime.Port,
+    actions: HtmlElement[],
+  ) => {
+    switch (this.testFramework) {
+      case "playwright": {
+        const test = new Playwright().generateCode(actions)
+        port.postMessage({
+          command: CODE_GENERATED,
+          data: test,
         })
         break
       }
@@ -85,7 +104,6 @@ class BackgroundWorker {
       active: true,
       currentWindow: true,
     })
-    activeTabId = tabs[0].id!
 
     await chrome.scripting.insertCSS({
       target: { tabId: tabs[0].id! },
