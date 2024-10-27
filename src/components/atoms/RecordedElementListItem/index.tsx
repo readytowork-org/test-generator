@@ -41,7 +41,7 @@ export const RecordedElementListItem: FC<CardProps> = ({
 }) => {
   const theme = useTheme()
   const ref = useRef<HTMLDivElement>(null)
-  const { register } = useFormContext<ActionsFormValues>()
+  const { register, setValue } = useFormContext<ActionsFormValues>()
 
   const [{ handlerId }, drop] = useDrop<
     DragItem,
@@ -181,7 +181,7 @@ export const RecordedElementListItem: FC<CardProps> = ({
               </>
             )}
             <Select
-              {...register(`actions.${index}.value`)}
+              {...register(`actions.${index}.selectedSelector.key`)}
               defaultValue={data.selectedSelector.key}
               slotProps={{
                 input: {
@@ -199,6 +199,15 @@ export const RecordedElementListItem: FC<CardProps> = ({
                     {selected}
                   </Typography>
                 )
+              }}
+              onChange={(event) => {
+                const select = data.selectors.find(
+                  (value) => value.key == event.target.value,
+                )
+                if (!select) {
+                  return
+                }
+                setValue(`actions.${index}.selectedSelector`, select)
               }}
             >
               {data.selectors.map((item) => {
