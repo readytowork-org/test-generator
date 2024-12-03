@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from "react"
 import {
-  CODE_GENERATED,
+  CODE_GENERATED, GENERATE_CODE,
   RECORDED_EVENT,
   RECORDING_STARTED,
   RECORDING_STOPPED,
   STOP_RECORDING,
-  UI_ACTIONS_PORT,
+  UI_ACTIONS_PORT
 } from "../constants.ts"
 import { ActionsFormValues, HtmlElement, PortMessage } from "../interfaces.ts"
 import { useForm, UseFormReturn } from "react-hook-form"
@@ -77,7 +77,7 @@ export const useSidePanel = (): useSidePanelFn => {
 
     actionPort.postMessage({
       ...msg,
-      data: msg.command === STOP_RECORDING ? form.getValues("actions") : null,
+      data: msg.command === STOP_RECORDING || msg.command === GENERATE_CODE ? form.getValues("actions") : null,
     })
   }, [])
 

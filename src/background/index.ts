@@ -1,12 +1,12 @@
 import {
-  CODE_GENERATED,
+  CODE_GENERATED, GENERATE_CODE,
   RECORDED_EVENT,
   RECORDING_PORT,
   RECORDING_STARTED,
   RECORDING_STOPPED,
   START_RECORDING,
   STOP_RECORDING,
-  UI_ACTIONS_PORT,
+  UI_ACTIONS_PORT
 } from "../constants.ts"
 import { HtmlElement, PortMessage, TestFramework } from "../interfaces.ts"
 import { Playwright } from "../code_gen/playwright"
@@ -78,6 +78,13 @@ class BackgroundWorker {
         port.postMessage({
           command: RECORDING_STOPPED,
         })
+        break
+      }
+
+      case GENERATE_CODE: {
+        if (msg.data) {
+          this.generateTestScript(port, msg.data as HtmlElement[])
+        }
         break
       }
     }

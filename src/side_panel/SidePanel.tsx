@@ -8,7 +8,7 @@ import {
   DialogTitle,
   Divider,
 } from "@mui/material"
-import { START_RECORDING, STOP_RECORDING } from "../constants.ts"
+import { GENERATE_CODE, START_RECORDING, STOP_RECORDING } from "../constants.ts"
 import { useSidePanel } from "./useSidePanel.tsx"
 import { RecordedActionsList, renderChildrenWithHooksHoc } from "../components"
 import { FormProvider } from "react-hook-form"
@@ -62,6 +62,21 @@ const SidePanel: FC = () => {
           >
             {`${recording ? "Stop" : "Start"} Recording`}
           </Button>
+          {
+            recording? <Button
+              sx={{
+                textTransform: "none",
+              }}
+              onClick={() => {
+                postActionMessage({
+                  command: GENERATE_CODE,
+                })
+              }}
+            >
+              {`Code Preview`}
+            </Button>:<></>
+          }
+
         </ButtonGroup>
       </Box>
       <Dialog
