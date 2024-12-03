@@ -1,19 +1,29 @@
 import {
-  CODE_GENERATED, GENERATE_CODE,
+  CODE_GENERATED,
+  GENERATE_CODE,
   RECORDED_EVENT,
   RECORDING_PORT,
   RECORDING_STARTED,
   RECORDING_STOPPED,
   START_RECORDING,
   STOP_RECORDING,
-  UI_ACTIONS_PORT
+  UI_ACTIONS_PORT,
 } from "../constants.ts"
-import { HtmlElement, PortMessage, TestFramework } from "../interfaces.ts"
-import { Playwright } from "../code_gen/playwright"
+import { HtmlElement, PortMessage } from "../interfaces.ts"
+import { PlaywrightCodeGen } from "../code_gen/playwright"
+import {
+  PLAYWRIGHT_ACTIONS,
+  PLAYWRIGHT_FUNCTIONS,
+} from "../code_gen/playwright/constants.tsx"
+import { CodeGen } from "../code_gen/interface.ts"
 import Tab = chrome.tabs.Tab
 
 class BackgroundWorker {
-  testFramework: TestFramework = "playwright"
+  testFramework: CodeGen = new PlaywrightCodeGen({
+    action: PLAYWRIGHT_ACTIONS,
+    function: PLAYWRIGHT_FUNCTIONS,
+  })
+
   constructor() {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
     chrome.action.onClicked.addListener(this.addSideBar)
@@ -94,16 +104,12 @@ class BackgroundWorker {
     port: chrome.runtime.Port,
     actions: HtmlElement[],
   ) => {
-    switch (this.testFramework) {
-      case "playwright": {
-        const test = new Playwright().generateCode(actions)
-        port.postMessage({
-          command: CODE_GENERATED,
-          data: test,
-        })
-        break
-      }
-    }
+    const test = this.testFramework.generateCode(actions)
+
+    port.postMessage({
+      command: CODE_GENERATED,
+      data: test,
+    })
   }
 
   injectContentScript = async () => {

@@ -1,9 +1,6 @@
-import {
-  PlayWrightActionsMappings,
-  PlayWrightFunctionMappings,
-} from "./interface.ts"
+import { ActionsMappings, FunctionMappings } from "../interface.ts"
 
-export const PLAY_WRIGHT_FUNCTIONS: PlayWrightFunctionMappings = {
+export const PLAYWRIGHT_FUNCTIONS: FunctionMappings = {
   "text content": (value) => `getByText("${value}")`,
   css: (value) => `locator("css=${value}")`,
   id: (value) => `locator("#${value}")`,
@@ -13,9 +10,10 @@ export const PLAY_WRIGHT_FUNCTIONS: PlayWrightFunctionMappings = {
   testId: (value) => `getByTestId("${value}")`,
 }
 
-export const PLAY_WRIGHT_ACTIONS: PlayWrightActionsMappings = {
+export const PLAYWRIGHT_ACTIONS: ActionsMappings = {
   change: (value) => `fill("${value}")`,
   click: () => `click()`,
+  mousedown: () => `click()`,
   dblclick: () => `dblclick()`,
   select: (value) => `selectOption("${value}")`,
 }

@@ -1,4 +1,11 @@
-import { CLICK_EVENTS, INPUT_EVENTS, UiEvents } from "./constants.ts"
+import {
+  CLICK_EVENTS,
+  ELEMENTS_EVENTS,
+  IGNORE_TAGS,
+  INPUT_EVENTS,
+  MOUSE_EVENTS,
+  UiEvents,
+} from "./constants.ts"
 import { Data, HtmlElement, Selectors } from "../interfaces.ts"
 import { RECORDED_EVENT, RECORDING_PORT } from "../constants.ts"
 import { v4 as uuidv4 } from "uuid"
@@ -23,7 +30,11 @@ export class EventRecorder {
 
   boot = () => {
     if (!window.pptRecorderAddedControlListeners) {
-      // this.addWindowEventListeners([...CLICK_EVENTS, ...INPUT_EVENTS])
+      this.addWindowEventListeners([
+        ...CLICK_EVENTS,
+        ...MOUSE_EVENTS,
+        ...INPUT_EVENTS,
+      ])
       this.addHoverEffects()
       window.pptRecorderAddedControlListeners = true
     }
@@ -42,95 +53,76 @@ export class EventRecorder {
     document.body.appendChild(testGenHoverTooltip)
 
     document.body.addEventListener("mouseover", this.onMouseOver)
-    document.body.addEventListener("mouseout", this.onMouseOut)
-  }
-
-  onMouseOut = (event: MouseEvent) => {
-    const element = event.target! as EventTarget as HTMLElement
-    if (element) {
-      this.removeWindowEventListeners(element)
-    }
   }
 
   onMouseOver = (event: MouseEvent) => {
     const element = event.target! as EventTarget as HTMLElement
     if (element) {
-      this.addWindowEventListeners(element)
+      const _testGenHover = document.getElementById("test-gen-hover")
+
+      const _testGenHoverTooltip = document.getElementById(
+        "test-gen-hover-tooltip",
+      )
+
+      const selector = getAllSelectors(element)
+        .filter((value) => value.key != "")
+        .sort((a, b) => a.priority - b.priority)
+
+      if (
+        !selector.length ||
+        IGNORE_TAGS.includes(element!.tagName.toLowerCase())
+      ) {
+        _testGenHover!.style.display = "none"
+        _testGenHoverTooltip!.innerHTML = ""
+        _testGenHoverTooltip!.style.display = "none"
+        return
+      }
+
+      const firstSelector = selector[0]
+
+      if (!firstSelector["key"]) {
+        _testGenHover!.style.display = "none"
+        _testGenHoverTooltip!.innerHTML = ""
+        _testGenHoverTooltip!.style.display = "none"
+        return
+      }
 
       const rect = element.getBoundingClientRect()
-
-      const _testGenHover = document.getElementById("test-gen-hover")
 
       _testGenHover!.style.top = `${document.documentElement.scrollTop + rect.top}px`
       _testGenHover!.style.left = `${document.documentElement.scrollLeft + rect.left}px`
       _testGenHover!.style.height = `${rect.height}px`
       _testGenHover!.style.width = `${rect.width}px`
 
-      const selector = getAllSelectors(element)
-        .filter((value) => value.key != "")
-        .sort((a, b) => a.priority - b.priority)
-
-      const _testGenHoverTooltip = document.getElementById(
-        "test-gen-hover-tooltip",
-      )
-      _testGenHoverTooltip!.innerHTML = selector[0].key
+      _testGenHover!.style.display = "block"
+      _testGenHoverTooltip!.innerHTML = firstSelector.key
+      _testGenHoverTooltip!.style.display = "block"
 
       _testGenHoverTooltip!.style.top = `calc(${_testGenHover!.style.top} + ${_testGenHover!.style.height} + 7px)`
       _testGenHoverTooltip!.style.left = _testGenHover!.style.left
     }
   }
 
-  addWindowEventListeners = async (element: HTMLElement) => {
-    switch (element.tagName) {
-      case "INPUT":
-      case "TEXTAREA":
-        ;[CLICK_EVENTS[0], ...INPUT_EVENTS].forEach((el) => {
-          element.addEventListener(el, this.recordEvent, true)
-        })
-        break
-      default: {
-        if (element.role == "combobox") {
-          element.addEventListener("mousedown", this.recordEvent, true)
-          return
-        }
-        CLICK_EVENTS.forEach((el) => {
-          element.addEventListener(el, this.recordEvent, true)
-        })
-      }
-    }
-  }
-  removeWindowEventListeners = async (element: HTMLElement) => {
-    switch (element.tagName) {
-      case "INPUT":
-      case "TEXTAREA":
-        ;[CLICK_EVENTS[0], ...INPUT_EVENTS].forEach((el) => {
-          element.removeEventListener(el, this.recordEvent, true)
-        })
-        break
-      default: {
-        if (element.role == "combobox") {
-          element.removeEventListener("mousedown", this.recordEvent, true)
-          return
-        }
-        CLICK_EVENTS.forEach((el) => {
-          element.removeEventListener(el, this.recordEvent, true)
-        })
-      }
-    }
+  addWindowEventListeners = (events: UiEvents[]) => {
+    events.forEach((type) => {
+      window.addEventListener(type, this.recordEvent, true)
+    })
   }
 
   recordEvent = (e: WindowEventMap[UiEvents]): void => {
     if (this.previousEvent && this.previousEvent.timeStamp === e.timeStamp) {
       return
     }
-
     this.previousEvent = e
 
     const target = e.target as HTMLInputElement & HTMLAnchorElement
 
-    console.log("tagName", target!.tagName)
-
-    if (target!.tagName == "BODY") {
+    if (
+      IGNORE_TAGS.includes(target!.tagName.toLowerCase()) ||
+      !ELEMENTS_EVENTS[(target.role ?? target.tagName).toLowerCase()].includes(
+        e.type as UiEvents,
+      )
+    ) {
       return
     }
 
@@ -140,11 +132,16 @@ export class EventRecorder {
       .filter((value) => value.key != "")
       .sort((a, b) => a.priority - b.priority)
 
+    if (!selector[0].key) {
+      return
+    }
+
     const msg: HtmlElement = {
       selectors: selector,
       selectedSelector: selector[0],
       value: target!.value,
-      tagName: target!.tagName,
+      tagName: target!.tagName.toLowerCase(),
+      role: target!.role,
       targetType: target!.type,
       action: e.type as UiEvents,
       keyCode: keyCode ? keyCode : null,
@@ -238,13 +235,11 @@ const getAllSelectors = (element: HTMLElement): Selectors => {
     })
   }
 
-  // Classes
-  if (element.classList.length > 0) {
+  // Title Attribute
+  if (element.getAttribute("title")) {
     selectors.push({
-      key: Array.from(element.classList)
-        .map((c) => `.${c}`)
-        .join(""),
-      type: "css",
+      key: `${element.getAttribute("title")}`,
+      type: "title",
       priority: 5,
     })
   }
@@ -258,11 +253,13 @@ const getAllSelectors = (element: HTMLElement): Selectors => {
     })
   }
 
-  // Title Attribute
-  if (element.getAttribute("title")) {
+  // Classes
+  if (element.classList.length > 0) {
     selectors.push({
-      key: `${element.getAttribute("title")}`,
-      type: "title",
+      key: Array.from(element.classList)
+        .map((c) => `.${c}`)
+        .join(""),
+      type: "css",
       priority: 7,
     })
   }

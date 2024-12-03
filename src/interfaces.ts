@@ -1,7 +1,5 @@
 import { UiEvents } from "./content/constants.ts"
 
-export type TestFramework = "playwright" | "cypress"
-
 export type SelectorsType =
   | "testId"
   | "id"
@@ -35,6 +33,7 @@ export interface HtmlElement {
   value: string
   tagName: string
   targetType: string
+  role: string | null
   action: UiEvents
   keyCode: string | null
   href: unknown

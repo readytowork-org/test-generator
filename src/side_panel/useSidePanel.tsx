@@ -1,11 +1,12 @@
 import { useCallback, useEffect } from "react"
 import {
-  CODE_GENERATED, GENERATE_CODE,
+  CODE_GENERATED,
+  GENERATE_CODE,
   RECORDED_EVENT,
   RECORDING_STARTED,
   RECORDING_STOPPED,
   STOP_RECORDING,
-  UI_ACTIONS_PORT
+  UI_ACTIONS_PORT,
 } from "../constants.ts"
 import { ActionsFormValues, HtmlElement, PortMessage } from "../interfaces.ts"
 import { useForm, UseFormReturn } from "react-hook-form"
@@ -67,19 +68,22 @@ export const useSidePanel = (): useSidePanelFn => {
   useEffect(() => {
     const has = chrome.runtime.onConnect.hasListener(handleRecordingsEvents)
     if (!has) {
-      console.log("reg :: handleRecordingsEvents")
       chrome.runtime.onConnect.addListener(handleRecordingsEvents)
     }
   }, [handleRecordingsEvents])
 
-  const postActionMessage = useCallback((msg: PortMessage) => {
-    console.log("actions", form.getValues("actions"))
-
-    actionPort.postMessage({
-      ...msg,
-      data: msg.command === STOP_RECORDING || msg.command === GENERATE_CODE ? form.getValues("actions") : null,
-    })
-  }, [])
+  const postActionMessage = useCallback(
+    (msg: PortMessage) => {
+      actionPort.postMessage({
+        ...msg,
+        data:
+          msg.command === STOP_RECORDING || msg.command === GENERATE_CODE
+            ? form.getValues("actions")
+            : null,
+      })
+    },
+    [actionPort],
+  )
 
   return {
     postActionMessage,

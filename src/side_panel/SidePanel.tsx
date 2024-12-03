@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import {
   Box,
   Button,
@@ -14,7 +14,7 @@ import { RecordedActionsList, renderChildrenWithHooksHoc } from "../components"
 import { FormProvider } from "react-hook-form"
 import { useRecordedActionsList } from "../components/organisms/RecordedActionsList/hook.tsx"
 import { ActionsFormValues } from "../interfaces.ts"
-import { CopyBlock, github } from "react-code-blocks"
+import { CopyBlock, sunburst } from "react-code-blocks"
 
 const RecordedActionsListHoc = renderChildrenWithHooksHoc(
   RecordedActionsList,
@@ -26,9 +26,21 @@ const SidePanel: FC = () => {
   const recording = form.watch("recording")
   const codePreview = form.watch("codePreview")
 
+  useEffect(() => {
+    if (!codePreview.preview) {
+      const id = setTimeout(() => {
+        form.setValue("codePreview", {
+          code: "",
+          preview: codePreview.preview,
+        })
+      }, 1000)
+      return () => clearTimeout(id)
+    }
+  }, [codePreview.preview])
+
   const onPreviewClose = () => {
     form.setValue("codePreview", {
-      code: "",
+      code: codePreview.code,
       preview: false,
     })
   }
@@ -62,8 +74,8 @@ const SidePanel: FC = () => {
           >
             {`${recording ? "Stop" : "Start"} Recording`}
           </Button>
-          {
-            recording? <Button
+          {recording && (
+            <Button
               sx={{
                 textTransform: "none",
               }}
@@ -74,9 +86,8 @@ const SidePanel: FC = () => {
               }}
             >
               {`Code Preview`}
-            </Button>:<></>
-          }
-
+            </Button>
+          )}
         </ButtonGroup>
       </Box>
       <Dialog
@@ -88,14 +99,18 @@ const SidePanel: FC = () => {
         <DialogTitle sx={{ m: 0, p: 2 }} id={"customized-dialog-title"}>
           {"Code Preview"}
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent
+          dividers
+          sx={{
+            padding: "0px 0px 16px 0px",
+          }}
+        >
           <CopyBlock
             language={"tsx"}
             text={codePreview.code}
             showLineNumbers={true}
-            theme={github}
+            theme={sunburst}
             codeBlock={true}
-            wrapLongLines={true}
           />
         </DialogContent>
       </Dialog>

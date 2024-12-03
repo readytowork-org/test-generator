@@ -28,3 +28,7 @@
     position: absolute;
     transform: rotateZ(45deg);
 }
+
+*[role="img"], img, svg, path {
+    pointer-events: none !important;
+}

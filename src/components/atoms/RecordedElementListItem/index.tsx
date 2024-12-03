@@ -12,7 +12,11 @@ import {
   useTheme,
 } from "@mui/material"
 import { ActionsFormValues, HtmlElement } from "../../../interfaces.ts"
-import { CLICK_EVENTS, INPUT_EVENTS } from "../../../content/constants.ts"
+import {
+  CLICK_EVENTS,
+  INPUT_EVENTS,
+  MOUSE_EVENTS,
+} from "../../../content/constants.ts"
 import { CloseIcon } from "../../../icons/close.tsx"
 import { useFormContext } from "react-hook-form"
 
@@ -149,8 +153,8 @@ export const RecordedElementListItem: FC<CardProps> = ({
             flexWrap={"wrap"}
             gap={"8px"}
           >
-            {CLICK_EVENTS.includes(data.action) ? (
-              `${data.action[0].toUpperCase()}${data.action.slice(1)} on `
+            {[...CLICK_EVENTS, ...MOUSE_EVENTS].includes(data.action) ? (
+              `Click on `
             ) : (
               <>
                 {`Enter`}
@@ -183,12 +187,19 @@ export const RecordedElementListItem: FC<CardProps> = ({
             <Select
               {...register(`actions.${index}.selectedSelector.key`)}
               defaultValue={data.selectedSelector.key}
+              sx={{
+                maxWidth: "calc(100vw - 180px)",
+              }}
               slotProps={{
                 input: {
                   sx: {
                     padding: "unset",
                     color: theme.palette.primary.main,
                     border: "none",
+                    "& p": {
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    },
                   },
                 },
               }}
@@ -220,7 +231,16 @@ export const RecordedElementListItem: FC<CardProps> = ({
                       flexDirection: "column",
                     }}
                   >
-                    <Typography variant={"body1"}>{item.key}</Typography>
+                    <Typography
+                      variant={"body1"}
+                      sx={{
+                        textOverflow: "ellipsis",
+                        maxWidth: "calc(100vw - 64px)",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {item.key}
+                    </Typography>
                     <Typography
                       variant={"body2"}
                       color={"textDisabled"}
