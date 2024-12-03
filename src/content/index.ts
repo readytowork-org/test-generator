@@ -23,7 +23,7 @@ export class EventRecorder {
 
   boot = () => {
     if (!window.pptRecorderAddedControlListeners) {
-      this.addWindowEventListeners([...CLICK_EVENTS, ...INPUT_EVENTS])
+      // this.addWindowEventListeners([...CLICK_EVENTS, ...INPUT_EVENTS])
       this.addHoverEffects()
       window.pptRecorderAddedControlListeners = true
     }
@@ -42,11 +42,21 @@ export class EventRecorder {
     document.body.appendChild(testGenHoverTooltip)
 
     document.body.addEventListener("mouseover", this.onMouseOver)
+    document.body.addEventListener("mouseout", this.onMouseOut)
+  }
+
+  onMouseOut = (event: MouseEvent) => {
+    const element = event.target! as EventTarget as HTMLElement
+    if (element) {
+      this.removeWindowEventListeners(element)
+    }
   }
 
   onMouseOver = (event: MouseEvent) => {
     const element = event.target! as EventTarget as HTMLElement
     if (element) {
+      this.addWindowEventListeners(element)
+
       const rect = element.getBoundingClientRect()
 
       const _testGenHover = document.getElementById("test-gen-hover")
@@ -70,10 +80,43 @@ export class EventRecorder {
     }
   }
 
-  addWindowEventListeners = (events: UiEvents[]) => {
-    events.forEach((type) => {
-      window.addEventListener(type, this.recordEvent, true)
-    })
+  addWindowEventListeners = async (element: HTMLElement) => {
+    switch (element.tagName) {
+      case "INPUT":
+      case "TEXTAREA":
+        ;[CLICK_EVENTS[0], ...INPUT_EVENTS].forEach((el) => {
+          element.addEventListener(el, this.recordEvent, true)
+        })
+        break
+      default: {
+        if (element.role == "combobox") {
+          element.addEventListener("mousedown", this.recordEvent, true)
+          return
+        }
+        CLICK_EVENTS.forEach((el) => {
+          element.addEventListener(el, this.recordEvent, true)
+        })
+      }
+    }
+  }
+  removeWindowEventListeners = async (element: HTMLElement) => {
+    switch (element.tagName) {
+      case "INPUT":
+      case "TEXTAREA":
+        ;[CLICK_EVENTS[0], ...INPUT_EVENTS].forEach((el) => {
+          element.removeEventListener(el, this.recordEvent, true)
+        })
+        break
+      default: {
+        if (element.role == "combobox") {
+          element.removeEventListener("mousedown", this.recordEvent, true)
+          return
+        }
+        CLICK_EVENTS.forEach((el) => {
+          element.removeEventListener(el, this.recordEvent, true)
+        })
+      }
+    }
   }
 
   recordEvent = (e: WindowEventMap[UiEvents]): void => {
@@ -84,6 +127,12 @@ export class EventRecorder {
     this.previousEvent = e
 
     const target = e.target as HTMLInputElement & HTMLAnchorElement
+
+    console.log("tagName", target!.tagName)
+
+    if (target!.tagName == "BODY") {
+      return
+    }
 
     const keyCode = (e as KeyboardEvent).code
 

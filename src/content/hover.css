@@ -15,6 +15,7 @@
     z-index: 999999999;
     height: fit-content;
     width: fit-content;
+    pointer-events: none;
 }
 
 .test-gen-hover-tooltip:before {

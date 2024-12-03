@@ -3,7 +3,7 @@ export type UiEvents = "click" | "dblclick" | "change" | "select"
 export const CLICK_EVENTS: UiEvents[] = ["click", "dblclick"]
 export const INPUT_EVENTS: UiEvents[] = ["change", "select"]
 
-export const elements = [
+export const elements: string[] = [
   "input",
   "textarea",
   "a",
@@ -11,13 +11,9 @@ export const elements = [
   "select",
   "option",
   "label",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
   "div",
   "span",
   "img",
+  "li",
+  "ul",
 ]
