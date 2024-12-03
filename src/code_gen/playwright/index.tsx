@@ -7,7 +7,7 @@ export class PlaywrightCodeGen extends CodeGen {
     contents: string[],
   ) => `import { test } from '@playwright/test';
 
-test(${title || "Test title"}}, async ({ page }) => {
+test("${title || "Test title"}", async ({ page }) => {
 ${contents.map((value) => ` await page.${value}`).join("\n")}
 });
 `

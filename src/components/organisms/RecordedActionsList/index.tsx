@@ -1,4 +1,4 @@
-import { FC } from "react"
+import { FC, useEffect } from "react"
 import { Box } from "@mui/material"
 import { HTML5Backend } from "react-dnd-html5-backend"
 import { RecordedElementListItem } from "../../atoms"
@@ -10,14 +10,26 @@ export const RecordedActionsList: FC<UseRecordedActionsListFn> = ({
   moveRow,
   deleteRow,
 }) => {
+  useEffect(() => {
+    const list = document.getElementById("action-list")
+    if (list) {
+      list.scrollTo(0, list.scrollHeight)
+    }
+  }, [fields])
+
   return (
     <Box
-      component={"form"}
+      id={"action-list"}
       onSubmit={(event) => {
         event.preventDefault()
       }}
       sx={{
         width: "100%",
+        height: "100%",
+        overflow: "hidden auto",
+        marginBottom: "16px",
+        scrollBehavior: "smooth",
+
         "& > :not(:last-child)": {
           marginBottom: "8px",
         },
