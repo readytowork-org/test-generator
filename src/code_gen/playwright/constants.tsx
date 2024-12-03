@@ -6,7 +6,7 @@ import {
 export const PLAY_WRIGHT_FUNCTIONS: PlayWrightFunctionMappings = {
   "text content": (value) => `getByText("${value}")`,
   css: (value) => `locator("css=${value}")`,
-  id: (value) => `locator(#"${value}")`,
+  id: (value) => `locator("#${value}")`,
   label: (value) => `getByLabel("${value}")`,
   placeholder: (value) => `getByPlaceholder("${value}")`,
   title: (value) => `getByTitle("${value}")`,
