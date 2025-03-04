@@ -1,4 +1,5 @@
 import {
+  CACHE_ACTION,
   CODE_GENERATED,
   GENERATE_CODE,
   RECORDED_EVENT,
@@ -73,20 +74,44 @@ class BackgroundWorker {
     switch (msg.command) {
       case START_RECORDING: {
         await this.injectContentScript()
-
-        port.postMessage({
-          command: RECORDING_STARTED,
-        })
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs.length > 0) {
+            const pageUrl = tabs[0].url;
+            console.log("Current webpage URL:", pageUrl);
+      
+            if (pageUrl) {
+              chrome.storage.local.get(CACHE_ACTION, (result) => {
+                const storedData =  JSON.parse(result[CACHE_ACTION] || "{}");
+                const pageData = storedData[pageUrl] || null;
+      
+                console.log("Retrieved Data for Page:===", pageData, result,result[CACHE_ACTION] );
+      
+                port.postMessage({
+                  command: RECORDING_STARTED,
+                  data: pageData, // Send back the stored data if available
+                });
+              });
+            } else {
+              console.error("Error: pageUrl is undefined");
+            port.postMessage({ command: RECORDING_STARTED });
+            }
+          } else {
+            console.error("No active tab found.");
+            port.postMessage({ command: RECORDING_STARTED });
+          }
+        });
         break
       }
 
       case STOP_RECORDING: {
+        console.log(STOP_RECORDING, msg.data)
         if (msg.data) {
           this.generateTestScript(port, msg.data as HtmlElement[])
         }
 
         port.postMessage({
           command: RECORDING_STOPPED,
+          data:msg.data
         })
         break
       }

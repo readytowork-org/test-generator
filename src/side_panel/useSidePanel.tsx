@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react"
 import {
+  CACHE_ACTION,
   CODE_GENERATED,
   GENERATE_CODE,
   RECORDED_EVENT,
@@ -18,6 +19,8 @@ export interface useSidePanelFn {
 }
 
 export const useSidePanel = (): useSidePanelFn => {
+
+
   const actionPort = chrome.runtime.connect({ name: UI_ACTIONS_PORT })
   const form = useForm<ActionsFormValues>({
     values: {
@@ -35,9 +38,30 @@ export const useSidePanel = (): useSidePanelFn => {
       switch (msg.command) {
         case RECORDING_STARTED:
           form.setValue("recording", true)
+          console.log("CACHE_ACTION ON START =====", msg.data);
           break
         case RECORDING_STOPPED:
           form.setValue("recording", false)
+          // store to browser storage
+          if(msg.data){
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs.length > 0) {
+                // get page url
+                const pageUrl = tabs[0].url;
+                if (pageUrl) {
+                  const storedData = JSON.parse(localStorage.getItem(CACHE_ACTION) || "{}");
+                  storedData[pageUrl] = msg.data || []; 
+            
+                  console.log("CACHE_ACTION =====", JSON.stringify(storedData));
+                  localStorage.setItem(CACHE_ACTION, JSON.stringify(storedData));
+                } else {
+                  console.error("Error: pageUrl is undefined");
+                }
+              } else {
+                console.error("No active tab found.");
+              }
+            });
+          }
           break
         case CODE_GENERATED: {
           form.setValue("codePreview", {

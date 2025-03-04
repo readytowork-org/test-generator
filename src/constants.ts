@@ -11,3 +11,5 @@ export const CODE_GENERATED = "code-generated"
 export const GENERATE_CODE = "generate-code"
 
 export const RECORDED_EVENT = "recorded-event"
+
+export const CACHE_ACTION= "cache-action"
