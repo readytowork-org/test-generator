@@ -11,8 +11,12 @@ Currently, two official plugins are available:
 
 install latest version of node.
 
-run `yarn install`
-and `yarn run dev` to start dev server
+* run `yarn install`
+* and `yarn run dev` to start dev server
+* goto: chrome://extensions
+* turn on Developer mode
+* click Load Unpacked
+* select manifest file from build folder
 
 ## Expanding the ESLint configuration
 
